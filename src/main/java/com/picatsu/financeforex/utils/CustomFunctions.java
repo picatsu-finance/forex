@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 public class CustomFunctions {
 
 
-    public void displayStackTraceIP(String path, HttpServletRequest request ) {
+    public void displayStackTraceIP(String path, HttpServletRequest request) {
         String ipAddress = request.getHeader("X-Forward-For");
         if(ipAddress== null){
             ipAddress = request.getRemoteAddr();
