@@ -10,6 +10,9 @@ api:
 spring:
   application:
     name: Finance-forex
+  output:
+    ansi:
+      enabled: ALWAYS
   data:
     mongodb:
       uri: mongodb+srv://financeclusteradmin:?DB12541@cluster0.z8e18.gcp.mongodb.net/finance_forex?retryWrites=true&w=majority

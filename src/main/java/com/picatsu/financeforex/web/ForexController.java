@@ -6,6 +6,7 @@ import com.picatsu.financeforex.repository.ForexModelRepository;
 import com.picatsu.financeforex.service.ForexService;
 import com.picatsu.financeforex.utils.CurrencyCode;
 import com.picatsu.financeforex.utils.CustomFunctions;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.patriques.output.exchange.data.CurrencyExchangeData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ public class ForexController {
     private CustomFunctions customFunctions;
 
     @GetMapping(value = "/{from}/{to}")
+    @Operation(summary = "exchange rate from x  to y ")
     public CurrencyExchangeData getExchange(@PathVariable CurrencyCode from, @PathVariable CurrencyCode to){
         log.info("Exchange by value "+ from + to);
         return forexService.getExchange(from.name(), to.name());
@@ -41,6 +43,7 @@ public class ForexController {
 
     @GetMapping(value = "/load")
     @Deprecated
+    @Operation(summary = "load all currency")
     public void getExchange(){
       for( CurrencyCode s : CurrencyCode.values()) {
 
@@ -50,12 +53,14 @@ public class ForexController {
 
 
     @GetMapping(value = "/paginate")
+    @Operation(summary = "retrieve all paginated forex model")
     public Page<ForexModel> getPaginated(@RequestParam int page, @RequestParam int size, HttpServletRequest request)  {
         customFunctions.displayStackTraceIP("/api/v1/forex/create", request);
         return forexModelRepository.findAll(PageRequest.of(page, size));
     }
 
     @GetMapping(value = "/search-forex/{str}")
+    @Operation(summary = "search all forexcode")
     public List<ForexModel> findCode(@PathVariable String str, HttpServletRequest request) {
         customFunctions.displayStackTraceIP("/search-forex/{str}", request);
         return Stream.concat( forexModelRepository.findByCodeContainsIgnoreCase(str).stream(),
@@ -64,6 +69,7 @@ public class ForexController {
     }
 
     @PostMapping(value = "/create")
+    @Operation(summary = "save forex code to db")
     public ForexModel addForexCode(@RequestBody ForexModel forex, HttpServletRequest request) {
 
         customFunctions.displayStackTraceIP("/api/v1/forex/create", request);
@@ -71,6 +77,7 @@ public class ForexController {
     }
 
     @DeleteMapping(value= "/{forex-code}/delete")
+    @Operation(summary = "delete forex from db")
     public Boolean deleteForexCode(@PathVariable(value= "forex-code") String code, HttpServletRequest request) {
 
         customFunctions.displayStackTraceIP("/api/v1/forex/{forex-code}/delete", request);

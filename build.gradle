@@ -37,6 +37,7 @@ dependencies {
 
 	compile group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: '2.3.0'
 	compile 'org.patriques:alphavantage4j:1.4'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
