@@ -10,4 +10,6 @@ class FinanceForexApplicationTests {
 	void contextLoads() {
 	}
 
+
+
 }

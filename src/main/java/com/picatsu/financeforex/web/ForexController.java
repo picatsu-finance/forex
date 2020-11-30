@@ -8,13 +8,17 @@ import com.picatsu.financeforex.utils.CurrencyCode;
 import com.picatsu.financeforex.utils.CustomFunctions;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
+import org.patriques.output.exchange.Daily;
 import org.patriques.output.exchange.data.CurrencyExchangeData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,6 +45,14 @@ public class ForexController {
         return forexService.getExchange(from.name(), to.name());
     }
 
+    @GetMapping(value = "/daily/{from}/{to}")
+    @Operation(summary = "Daily rate from x  to y ")
+    public Daily getTss(@PathVariable CurrencyCode from, @PathVariable CurrencyCode to){
+        log.info("Exchange by value "+ from + to);
+        return forexService.getTSS(from.name(), to.name());
+    }
+
+
     @GetMapping(value = "/load")
     @Deprecated
     @Operation(summary = "load all currency")
@@ -50,6 +62,14 @@ public class ForexController {
           forexModelRepository.save(new ForexModel(s.toString(), s.getDescription()));
       }
     }
+
+    @GetMapping(value = "/all")
+    @Operation(summary = "retrieve all forex model")
+    public List<ForexModel> getAllForexCode( HttpServletRequest request)  {
+        customFunctions.displayStackTraceIP("/api/v1/forex/create", request);
+        return forexModelRepository.findAll();
+    }
+
 
 
     @GetMapping(value = "/paginate")
@@ -62,10 +82,16 @@ public class ForexController {
     @GetMapping(value = "/search-forex/{str}")
     @Operation(summary = "search all forexcode")
     public List<ForexModel> findCode(@PathVariable String str, HttpServletRequest request) {
+
         customFunctions.displayStackTraceIP("/search-forex/{str}", request);
-        return Stream.concat( forexModelRepository.findByCodeContainsIgnoreCase(str).stream(),
-                forexModelRepository.findByNameContainsIgnoreCase(str).stream()
-        ).collect(Collectors.toList());
+        return new ArrayList<>(
+                Stream.of(forexModelRepository.findByCodeContainsIgnoreCase(str),
+                        forexModelRepository.findByNameContainsIgnoreCase(str))
+                        .flatMap(List::stream)
+                        .collect(Collectors.toMap(ForexModel::getCode,
+                                d -> d, (ForexModel x, ForexModel y) -> x == null ? y : x))
+                        .values());
+
     }
 
     @PostMapping(value = "/create")
@@ -76,16 +102,23 @@ public class ForexController {
         return forexModelRepository.insert(forex);
     }
 
-    @DeleteMapping(value= "/{forex-code}/delete")
+    @DeleteMapping(value= "/{forex-code}")
     @Operation(summary = "delete forex from db")
-    public Boolean deleteForexCode(@PathVariable(value= "forex-code") String code, HttpServletRequest request) {
+    public ResponseEntity<?> deleteForexCode(@PathVariable(value= "forex-code") String code, HttpServletRequest request) {
 
         customFunctions.displayStackTraceIP("/api/v1/forex/{forex-code}/delete", request);
-        try {
-            return forexModelRepository.deleteAllByCode(code);
-        } catch (Exception e) {
-            return null;
+
+
+        long val =  forexModelRepository.deleteAllByCode(code);
+
+        if ( val == 1) {
+            return new ResponseEntity<>("Deleted successfully ", HttpStatus.OK);
         }
+        if( val == 0 ) {
+            return new ResponseEntity<>("Cannot find Symbol : " + code, HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>("Obscure error ", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

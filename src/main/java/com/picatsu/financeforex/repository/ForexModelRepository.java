@@ -9,5 +9,5 @@ public interface ForexModelRepository extends MongoRepository<ForexModel, String
 
     List<ForexModel> findByCodeContainsIgnoreCase(String str);
     List<ForexModel> findByNameContainsIgnoreCase(String str);
-    boolean deleteAllByCode(String code);
+    long deleteAllByCode(String code);
 }
