@@ -9,4 +9,4 @@ docker push ezzefiohez/finance-forex
 
 echo " ######## BUILD FOREX DONE ######## "
 
-curl  -X POST http://94.239.109.172:9000/api/webhooks/83431043-97e7-4f1a-a341-d2214c1f93c2
+curl  -X POST http://146.59.195.214:9000/api/webhooks/8e76da74-0bc1-4fc6-89eb-41f0d19488c1
